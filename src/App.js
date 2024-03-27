@@ -20,22 +20,27 @@ function App() {
     products: [],
     selectedBrandFamily: "",
   });
-  function handleState(productName) {
+  function handleProductState(productName) {
     setState({
-      selectedProducts: [{ id: 1, name: productName, price: 10 }],
-      loyaltyId: {
-        id: "testid",
-        name: "testName",
-        isValid: false,
-      },
+      ...state,
+      selectedProducts: [...state.selectedProducts, productName],
     });
   }
+  function handleBrandState(brandName) {
+    setState({ ...state, selectedBrandFamily: brandName });
+  }
+  function clearBrandState() {
+    setState({ ...state, selectedBrandFamily: "" });
+  }
+
   React.useEffect(() => {
-    fetch("structures/price_promotions_response.json")
-      .then((response) => response.json())
-      .then((jsonResponse) =>
-        setState({ products: jsonResponse[0]["Products"] }),
-      );
+    if (state.products.length === 0) {
+      fetch("structures/price_promotions_response.json")
+        .then((response) => response.json())
+        .then((jsonResponse) =>
+          setState({ ...state, products: jsonResponse[0]["Products"] }),
+        );
+    }
   });
 
   // outputs a javascript object from the parsed json
@@ -79,6 +84,8 @@ function App() {
           }}
         >
           <PosTable
+            products={state.selectedProducts}
+            handleProductState={handleProductState}
             sx={{
               height: "100vh",
               width: "100%",
@@ -148,27 +155,30 @@ function App() {
             minHeight: "80%",
           }}
         >
-          {() => {
-            if (state.selectedBrandFamily === "") {
-              //use distinct
-              // render all the brand buttons
-              state.products
-                .map((product) => product["Brand"])
-                .map((product) => {
-                  return (
-                    <BrandFamilyButton product={product} change={handleState} />
-                  );
-                });
-            } else {
-              state.products.filter(
+          {state.selectedBrandFamily === "" &&
+            [...new Set(state.products.map((product) => product["Brand"]))].map(
+              (brand) => {
+                return (
+                  <BrandFamilyButton brand={brand} change={handleBrandState} />
+                );
+              },
+            )}
+          {state.selectedBrandFamily && (
+            <ProductButton product={"Back"} change={clearBrandState} />
+          )}
+          {state.selectedBrandFamily &&
+            state.products
+              .filter(
                 (product) => product["Brand"] === state.selectedBrandFamily,
-              );
-            }
-
-            state.products.map((product) => {
-              return <ProductButton product={product} change={handleState} />;
-            });
-          }}
+              )
+              .map((product) => {
+                return (
+                  <ProductButton
+                    product={product}
+                    change={handleProductState}
+                  />
+                );
+              })}
         </Grid>
       </Container>
     </div>

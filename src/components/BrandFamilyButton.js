@@ -6,11 +6,11 @@ function createData(name, quantity, totalPrice) {
   return { name, quantity, totalPrice };
 }
 
-export default function BrandFamilyButton({ product, change }) {
+export default function BrandFamilyButton({ brand, change }) {
   return (
     <Grid>
-      <Button variant="contained" onClick={() => change("Brand")}>
-        {product["Brand"]}
+      <Button variant="contained" onClick={() => change(brand)}>
+        {brand}
       </Button>
     </Grid>
   );
