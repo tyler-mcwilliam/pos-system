@@ -18,6 +18,7 @@ export default function PosTable(props) {
             <TableCell>Name</TableCell>
             <TableCell align="right">Packing</TableCell>
             <TableCell align="right">QTY</TableCell>
+            <TableCell align="right">Unit</TableCell>
             <TableCell align="right">Total</TableCell>
           </TableRow>
         </TableHead>
@@ -28,15 +29,16 @@ export default function PosTable(props) {
                 key={product.name}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell onClick={() => props.handleProductState(product)}>
-                  <DeleteIcon />
+                <TableCell onClick={() => props.deleteProductState(product)}>
+                  <DeleteIcon sx={{ cursor: "pointer" }} />
                 </TableCell>
                 <TableCell component="th" scope="row">
-                  {product["SKUName"]}
+                  {product["name"]}
                 </TableCell>
-                <TableCell align="right">{product.packing}</TableCell>
-                <TableCell align="right">{product.quantity}</TableCell>
-                <TableCell align="right">{product.price}</TableCell>
+                <TableCell align="right">{product["uom"]}</TableCell>
+                <TableCell align="right">{product["quantity"]}</TableCell>
+                <TableCell align="right">{product["unitPrice"]}</TableCell>
+                <TableCell align="right">{product["totalPrice"]}</TableCell>
               </TableRow>
             ))}
         </TableBody>

@@ -8,6 +8,7 @@ import TotalsTable from "./components/TotalsTable";
 import Grid from "@mui/material/Unstable_Grid2";
 import ProductButton from "./components/productButton";
 import BrandFamilyButton from "./components/BrandFamilyButton";
+import BackButton from "./components/BackButton";
 
 function App() {
   let [state, setState] = React.useState({
@@ -18,12 +19,30 @@ function App() {
       isValid: false,
     },
     products: [],
+    prices: [],
     selectedBrandFamily: "",
   });
-  function handleProductState(productName) {
+  function handleProductState(product) {
+    const parentProduct = state.products.find((item) =>
+      item["Packings"]
+        .map((packing) => packing["UPC"])
+        .includes(product["UPC"]),
+    );
+    const price = state.prices.find((item) =>
+      item["SKUGUID"].includes(parentProduct["SKUGUID"]),
+    )["Allowances"][0]["MaxSuggestedRetailSellingPrice"];
+    const quantity = 1;
+    const newProduct = {
+      name: parentProduct["SKUName"],
+      upc: product["UPC"],
+      uom: product["UOM"],
+      quantity: quantity,
+      unitPrice: price,
+      totalPrice: quantity * price,
+    };
     setState({
       ...state,
-      selectedProducts: [...state.selectedProducts, productName],
+      selectedProducts: [...state.selectedProducts, newProduct],
     });
   }
   function handleBrandState(brandName) {
@@ -32,13 +51,20 @@ function App() {
   function clearBrandState() {
     setState({ ...state, selectedBrandFamily: "" });
   }
+  function deleteProductState() {
+    setState({ ...state, selectedProducts: [] });
+  }
 
   React.useEffect(() => {
-    if (state.products.length === 0) {
+    if (state.products.length === 0 || state.prices.length === 0) {
       fetch("structures/price_promotions_response.json")
         .then((response) => response.json())
         .then((jsonResponse) =>
-          setState({ ...state, products: jsonResponse[0]["Products"] }),
+          setState({
+            ...state,
+            products: jsonResponse[0]["Products"],
+            prices: jsonResponse[0]["PerUnitAllowances"],
+          }),
         );
     }
   });
@@ -85,7 +111,7 @@ function App() {
         >
           <PosTable
             products={state.selectedProducts}
-            handleProductState={handleProductState}
+            deleteProductState={deleteProductState}
             sx={{
               height: "100vh",
               width: "100%",
@@ -163,9 +189,7 @@ function App() {
                 );
               },
             )}
-          {state.selectedBrandFamily && (
-            <ProductButton product={"Back"} change={clearBrandState} />
-          )}
+          {state.selectedBrandFamily && <BackButton change={clearBrandState} />}
           {state.selectedBrandFamily &&
             state.products
               .filter(
