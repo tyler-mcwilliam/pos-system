@@ -9,6 +9,12 @@ import Grid from "@mui/material/Unstable_Grid2";
 import ProductButton from "./components/productButton";
 import BrandFamilyButton from "./components/BrandFamilyButton";
 import BackButton from "./components/BackButton";
+import PackingModal from "./components/PackingModal";
+
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Modal from "@mui/material/Modal";
+import PackingButton from "./components/PackingButton";
 
 function App() {
   let [state, setState] = React.useState({
@@ -21,6 +27,9 @@ function App() {
     products: [],
     prices: [],
     selectedBrandFamily: "",
+    openProduct: {},
+    modalOpen: false,
+    test: true,
   });
   function handleProductState(product) {
     const parentProduct = state.products.find((item) =>
@@ -45,14 +54,30 @@ function App() {
       selectedProducts: [...state.selectedProducts, newProduct],
     });
   }
+  function handleOpenProductState(product) {
+    setState({ ...state, openProduct: product });
+  }
   function handleBrandState(brandName) {
     setState({ ...state, selectedBrandFamily: brandName });
   }
   function clearBrandState() {
     setState({ ...state, selectedBrandFamily: "" });
   }
-  function deleteProductState() {
-    setState({ ...state, selectedProducts: [] });
+  function deleteProductState(product) {
+    //To be fixed
+    setState({
+      ...state,
+      selectedProducts: state.selectedProducts.slice(
+        state.selectedProducts.find(product),
+        state.selectedProducts.find(product) + 1,
+      ),
+    });
+  }
+  function openModal() {
+    setState({ ...state, modalOpen: true });
+  }
+  function closeModal() {
+    setState({ ...state, modalOpen: false });
   }
 
   React.useEffect(() => {
@@ -199,11 +224,47 @@ function App() {
                 return (
                   <ProductButton
                     product={product}
-                    change={handleProductState}
+                    openModal={openModal}
+                    handleOpenProduct={handleOpenProductState}
                   />
                 );
               })}
         </Grid>
+        <div>
+          <Modal
+            open={state.modalOpen}
+            onClose={closeModal}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: 400,
+                bgcolor: "background.paper",
+                border: "2px solid #000",
+                boxShadow: 24,
+                p: 4,
+              }}
+            >
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Select Packing
+              </Typography>
+              {state.openProduct.Packings &&
+                state.openProduct.Packings.map((packing) => {
+                  return (
+                    <PackingButton
+                      packing={packing}
+                      change={handleProductState}
+                    />
+                  );
+                })}
+            </Box>
+          </Modal>
+        </div>
       </Container>
     </div>
   );

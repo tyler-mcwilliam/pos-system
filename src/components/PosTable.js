@@ -18,7 +18,7 @@ export default function PosTable(props) {
             <TableCell>Name</TableCell>
             <TableCell align="right">Packing</TableCell>
             <TableCell align="right">QTY</TableCell>
-            <TableCell align="right">Unit</TableCell>
+            <TableCell align="right">Unit Price</TableCell>
             <TableCell align="right">Total</TableCell>
           </TableRow>
         </TableHead>
