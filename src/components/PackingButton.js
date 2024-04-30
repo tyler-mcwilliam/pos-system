@@ -6,7 +6,7 @@ import PackingModal from "./PackingModal";
 export default function PackingButton({ packing, change }) {
   return (
     <Grid>
-      <Button variant="contained" onClick={() => change("packing")}>
+      <Button variant="contained" onClick={() => change(packing)}>
         {packing && packing["UOM"]}
       </Button>
     </Grid>

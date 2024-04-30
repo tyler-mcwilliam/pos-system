@@ -9,6 +9,7 @@ import Paper from "@mui/material/Paper";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function PosTable(props) {
+  console.log(props.products);
   return (
     <TableContainer sx={{ height: "100%" }} component={Paper}>
       <Table sx={{ minWidth: 300 }} size="small" aria-label="a dense table">

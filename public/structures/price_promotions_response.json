@@ -1651,8 +1651,7 @@
       }
     ],
     "PerUnitAllowances": [
-      {
-        "AllowanceType": "Total Buydown Allowances",
+      {"AllowanceType": "Total Buydown Allowances",
         "RCN": ["125732"],
         "SKUGUID": [
           "0C544412-86F7-E011-A5EF-001517C5D911",
@@ -1681,8 +1680,7 @@
           }
         ]
       },
-      {
-        "AllowanceType": "Total Buydown Allowances",
+      {"AllowanceType": "Total Buydown Allowances",
         "RCN": ["125732"],
         "SKUGUID": [
           "11A86CA4-2411-E111-97F9-001517C5D911",

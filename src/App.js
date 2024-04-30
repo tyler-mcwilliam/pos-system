@@ -4,17 +4,22 @@ import * as React from "react";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import PosTable from "./components/PosTable";
-import TotalsTable from "./components/TotalsTable";
+import TotalsTable from "./components/totalsTable";
 import Grid from "@mui/material/Unstable_Grid2";
 import ProductButton from "./components/productButton";
 import BrandFamilyButton from "./components/BrandFamilyButton";
 import BackButton from "./components/BackButton";
-import PackingModal from "./components/PackingModal";
+//import PackingModal from "./components/PackingModal";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import PackingButton from "./components/PackingButton";
+import { TwoKOutlined } from "@mui/icons-material";
+
+//fixed loyaltyID returns fixed offer
+//logic to apply or remove offer for items in cart
+//check cart as it's modified to see if any loyalty offers are applicable
 
 function App() {
   let [state, setState] = React.useState({
@@ -26,25 +31,48 @@ function App() {
     },
     products: [],
     prices: [],
+    brandGUID: [],
+    loyaltyOffers: [],
     selectedBrandFamily: "",
     openProduct: {},
     modalOpen: false,
-    test: true,
+    test: false,
   });
-  function handleProductState(product) {
+  function handleProductState(packing) {
+    let existingProduct = state.selectedProducts.find(
+      (item) => item.upc === packing["UPC"],
+    );
+    if (existingProduct) {
+      const index = state.selectedProducts.findIndex(
+        (item) => item === existingProduct,
+      );
+      setState({
+        ...state,
+        selectedProducts: (state.selectedProducts[index].quantity += 1),
+      });
+      debugger;
+      return console.log(state.selectedProducts);
+    }
+
     const parentProduct = state.products.find((item) =>
       item["Packings"]
         .map((packing) => packing["UPC"])
-        .includes(product["UPC"]),
+        .includes(packing["UPC"]),
     );
     const price = state.prices.find((item) =>
       item["SKUGUID"].includes(parentProduct["SKUGUID"]),
     )["Allowances"][0]["MaxSuggestedRetailSellingPrice"];
+
+    // const price =
+    //   packing["ConversionFactor"] *
+    //   state.prices.find((item) => item["SKUGUID"].includes(product["SKUGUID"]))[
+    //     "Allowances"
+    //   ][0]["MaxSuggestedRetailSellingPrice"];
     const quantity = 1;
     const newProduct = {
       name: parentProduct["SKUName"],
-      upc: product["UPC"],
-      uom: product["UOM"],
+      upc: packing["UPC"],
+      uom: packing["UOM"],
       quantity: quantity,
       unitPrice: price,
       totalPrice: quantity * price,
@@ -53,9 +81,6 @@ function App() {
       ...state,
       selectedProducts: [...state.selectedProducts, newProduct],
     });
-  }
-  function handleOpenProductState(product) {
-    setState({ ...state, openProduct: product });
   }
   function handleBrandState(brandName) {
     setState({ ...state, selectedBrandFamily: brandName });
@@ -73,8 +98,8 @@ function App() {
       ),
     });
   }
-  function openModal() {
-    setState({ ...state, modalOpen: true });
+  function openModal(product) {
+    setState({ ...state, modalOpen: true, openProduct: product });
   }
   function closeModal() {
     setState({ ...state, modalOpen: false });
@@ -89,6 +114,17 @@ function App() {
             ...state,
             products: jsonResponse[0]["Products"],
             prices: jsonResponse[0]["PerUnitAllowances"],
+          }),
+        );
+    }
+    if (state.brandGUID.length === 0) {
+      fetch("structures/loyalty_offer.json")
+        .then((response) => response.json())
+        .then((jsonResponse) =>
+          setState({
+            ...state,
+            brandGUID: jsonResponse["products"],
+            loyaltyOffers: jsonResponse["details"],
           }),
         );
     }
@@ -222,11 +258,7 @@ function App() {
               )
               .map((product) => {
                 return (
-                  <ProductButton
-                    product={product}
-                    openModal={openModal}
-                    handleOpenProduct={handleOpenProductState}
-                  />
+                  <ProductButton product={product} openModal={openModal} />
                 );
               })}
         </Grid>
@@ -253,6 +285,7 @@ function App() {
               <Typography id="modal-modal-title" variant="h6" component="h2">
                 Select Packing
               </Typography>
+
               {state.openProduct.Packings &&
                 state.openProduct.Packings.map((packing) => {
                   return (
