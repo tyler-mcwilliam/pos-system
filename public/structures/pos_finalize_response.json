@@ -1,0 +1,30 @@
+{
+  "status": {
+    "statusCode": "0000",
+    "statusMessage": "Success",
+    "errorDetails": ""
+  },
+  "transactionID": "25a82fc8-5f5b-4019-84ac-5d8f535f3049",
+  "transactionDateTime": "2024-05-06T16:20:08.3805409Z",
+  "details": [
+    {
+      "loyaltyID": "camptest1",
+      "consumerStatusCode": "0000",
+      "consumerStatusMessage": "Success",
+      "transactions": [
+        {
+          "posTransactionID": "10189221",
+          "offersClaimedStatus": [
+            {
+              "claimID": "2c7ecaf3-f17d-4b8c-8031-d3f91235aba5",
+              "claimedOfferID": "48980224-4228-4a04-8ac2-32171015b2ad",
+              "claimStatus": "0000",
+              "claimStatusMessage": "Success"
+            }
+          ]
+        }
+      ],
+      "offersAvailable": []
+    }
+  ]
+}

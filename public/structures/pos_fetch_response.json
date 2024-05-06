@@ -1,0 +1,27 @@
+{
+  "status": {
+    "statusCode": "0000",
+    "statusMessage": "Success",
+    "errorDetails": ""
+  },
+  "transactionID": "8918eab1-6cd4-423a-9ef0-c14a61b6b3a8",
+  "transactionDateTime": "2024-05-06T16:17:47.2351337Z",
+  "details": [
+    {
+      "loyaltyID": "camptest1",
+      "consumerStatusCode": "0000",
+      "consumerStatusMessage": "Success",
+      "transactions": [],
+      "offersAvailable": [
+        {
+          "offersStatusCode": "0000",
+          "offersStatusMessage": "Success",
+          "offerCustomMessages": [],
+          "offerID": "48980224-4228-4a04-8ac2-32171015b2ad",
+          "offerStartDateTime": "2024-05-06T00:00:00",
+          "offerEndDateTime": "2025-06-15T23:59:59"
+        }
+      ]
+    }
+  ]
+}

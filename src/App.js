@@ -9,6 +9,7 @@ import Grid from "@mui/material/Unstable_Grid2";
 import ProductButton from "./components/productButton";
 import BrandFamilyButton from "./components/BrandFamilyButton";
 import BackButton from "./components/BackButton";
+import TextField from "@mui/material/TextField";
 //import PackingModal from "./components/PackingModal";
 
 import Box from "@mui/material/Box";
@@ -26,16 +27,17 @@ function App() {
     selectedProducts: [],
     loyaltyId: {
       id: "",
-      name: "",
       isValid: false,
     },
     products: [],
     prices: [],
     brandGUID: [],
     loyaltyOffers: [],
+    personalOffer: {},
     selectedBrandFamily: "",
     openProduct: {},
-    modalOpen: false,
+    packingModalOpen: false,
+    loyaltyModalOpen: false,
     test: false,
   });
   function handleProductState(packing) {
@@ -51,7 +53,7 @@ function App() {
         selectedProducts: (state.selectedProducts[index].quantity += 1),
       });
       debugger;
-      return console.log(state.selectedProducts);
+      //return console.log(state.selectedProducts);
     }
 
     const parentProduct = state.products.find((item) =>
@@ -98,13 +100,18 @@ function App() {
       ),
     });
   }
-  function openModal(product) {
-    setState({ ...state, modalOpen: true, openProduct: product });
+  function openPackingModal(product) {
+    setState({ ...state, packingModalOpen: true, openProduct: product });
   }
-  function closeModal() {
-    setState({ ...state, modalOpen: false });
+  function closePackingModal() {
+    setState({ ...state, packingModalOpen: false });
   }
-
+  function openLoyaltyModal() {
+    setState({ ...state, loyaltyModalOpen: true });
+  }
+  function closeLoyaltyModal() {
+    setState({ ...state, loyaltyModalOpen: false });
+  }
   React.useEffect(() => {
     if (state.products.length === 0 || state.prices.length === 0) {
       fetch("structures/price_promotions_response.json")
@@ -125,6 +132,22 @@ function App() {
             ...state,
             brandGUID: jsonResponse["products"],
             loyaltyOffers: jsonResponse["details"],
+          }),
+        );
+    }
+    //&& state.personalOffer === {}
+    if (state.loyaltyId["isValid"]) {
+      console.log("test");
+      fetch("structures/pos_fetch_response.json")
+        .then((response) => response.json())
+        .then((jsonResponse) =>
+          setState({
+            ...state,
+            personalOffer: state.loyaltyOffers.find(
+              (offer) =>
+                offer["offerId"] ===
+                jsonResponse["details"][0]["offersAvailble"][0]["offerId"],
+            ),
           }),
         );
     }
@@ -214,7 +237,9 @@ function App() {
             bgColor="blue"
           >
             <Grid>
-              <Button variant="contained">Loyalty ID</Button>
+              <Button variant="contained" onClick={() => openLoyaltyModal()}>
+                Loyalty ID
+              </Button>
             </Grid>
             <Grid>
               <Button variant="contained">Pay</Button>
@@ -258,14 +283,17 @@ function App() {
               )
               .map((product) => {
                 return (
-                  <ProductButton product={product} openModal={openModal} />
+                  <ProductButton
+                    product={product}
+                    openModal={openPackingModal}
+                  />
                 );
               })}
         </Grid>
         <div>
           <Modal
-            open={state.modalOpen}
-            onClose={closeModal}
+            open={state.packingModalOpen}
+            onClose={closePackingModal}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
           >
@@ -295,6 +323,47 @@ function App() {
                     />
                   );
                 })}
+            </Box>
+          </Modal>
+        </div>
+        <div>
+          <Modal
+            open={state.loyaltyModalOpen}
+            onClose={closeLoyaltyModal}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: 400,
+                bgcolor: "background.paper",
+                border: "2px solid #000",
+                boxShadow: 24,
+                p: 4,
+              }}
+            >
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Input Loyalty ID
+              </Typography>
+              <TextField
+                id="outlined-basic"
+                label="Loyalty ID"
+                variant="outlined"
+                onChange={(event) =>
+                  setState({
+                    ...state,
+                    loyaltyId: {
+                      id: event.target.value,
+                      isValid: event.target.value === "camptest1",
+                    },
+                  })
+                }
+              />
+              <Button />
             </Box>
           </Modal>
         </div>
