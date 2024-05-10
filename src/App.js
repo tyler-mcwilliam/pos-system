@@ -48,12 +48,12 @@ function App() {
       const index = state.selectedProducts.findIndex(
         (item) => item === existingProduct,
       );
+      state.selectedProducts[index].quantity += 1;
       setState({
         ...state,
-        selectedProducts: (state.selectedProducts[index].quantity += 1),
+        selectedProducts: state.selectedProducts,
       });
-      debugger;
-      //return console.log(state.selectedProducts);
+      return;
     }
 
     const parentProduct = state.products.find((item) =>
@@ -61,9 +61,11 @@ function App() {
         .map((packing) => packing["UPC"])
         .includes(packing["UPC"]),
     );
-    const price = state.prices.find((item) =>
-      item["SKUGUID"].includes(parentProduct["SKUGUID"]),
-    )["Allowances"][0]["MaxSuggestedRetailSellingPrice"];
+    const price =
+      packing["ConversionFactor"] *
+      state.prices.find((item) =>
+        item["SKUGUID"].includes(parentProduct["SKUGUID"]),
+      )["Allowances"][0]["MaxSuggestedRetailSellingPrice"];
 
     // const price =
     //   packing["ConversionFactor"] *
@@ -135,8 +137,8 @@ function App() {
           }),
         );
     }
-    //&& state.personalOffer === {}
-    if (state.loyaltyId["isValid"]) {
+    //
+    if (state.loyaltyId["isValid"] && state.personalOffer === {}) {
       console.log("test");
       fetch("structures/pos_fetch_response.json")
         .then((response) => response.json())
@@ -146,7 +148,7 @@ function App() {
             personalOffer: state.loyaltyOffers.find(
               (offer) =>
                 offer["offerId"] ===
-                jsonResponse["details"][0]["offersAvailble"][0]["offerId"],
+                jsonResponse["details"][0]["offersAvailable"][0]["offerId"],
             ),
           }),
         );
