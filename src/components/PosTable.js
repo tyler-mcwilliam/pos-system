@@ -9,18 +9,25 @@ import Paper from "@mui/material/Paper";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function PosTable(props) {
-  console.log(props.products);
   return (
     <TableContainer sx={{ height: "100%" }} component={Paper}>
       <Table sx={{ minWidth: 300 }} size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
             <TableCell></TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell align="right">Packing</TableCell>
-            <TableCell align="right">QTY</TableCell>
-            <TableCell align="right">Unit Price</TableCell>
-            <TableCell align="right">Total</TableCell>
+            <TableCell><b>Name</b></TableCell>
+            <TableCell align="right">
+              <b>Packing</b>
+            </TableCell>
+            <TableCell align="right">
+              <b>QTY</b>
+            </TableCell>
+            <TableCell align="right">
+              <b>Unit Price</b>
+            </TableCell>
+            <TableCell align="right">
+              <b>Total</b>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -38,8 +45,12 @@ export default function PosTable(props) {
                 </TableCell>
                 <TableCell align="right">{product["uom"]}</TableCell>
                 <TableCell align="right">{product["quantity"]}</TableCell>
-                <TableCell align="right">{product["unitPrice"]}</TableCell>
-                <TableCell align="right">{product["totalPrice"]}</TableCell>
+                <TableCell align="right">
+                  {product["unitPrice"].toFixed(2)}
+                </TableCell>
+                <TableCell align="right">
+                  {product["totalPrice"].toFixed(2)}
+                </TableCell>
               </TableRow>
             ))}
         </TableBody>

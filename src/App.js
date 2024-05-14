@@ -49,6 +49,13 @@ function App() {
         (item) => item === existingProduct,
       );
       state.selectedProducts[index].quantity += 1;
+      state.selectedProducts[index].totalPrice =
+        Math.round(
+          state.selectedProducts[index].unitPrice *
+            state.selectedProducts[index].quantity *
+            100,
+        ) / 100;
+
       setState({
         ...state,
         selectedProducts: state.selectedProducts,
@@ -62,16 +69,14 @@ function App() {
         .includes(packing["UPC"]),
     );
     const price =
-      packing["ConversionFactor"] *
-      state.prices.find((item) =>
-        item["SKUGUID"].includes(parentProduct["SKUGUID"]),
-      )["Allowances"][0]["MaxSuggestedRetailSellingPrice"];
+      Math.round(
+        packing["ConversionFactor"] *
+          state.prices.find((item) =>
+            item["SKUGUID"].includes(parentProduct["SKUGUID"]),
+          )["Allowances"][0]["MaxSuggestedRetailSellingPrice"] *
+          100,
+      ) / 100;
 
-    // const price =
-    //   packing["ConversionFactor"] *
-    //   state.prices.find((item) => item["SKUGUID"].includes(product["SKUGUID"]))[
-    //     "Allowances"
-    //   ][0]["MaxSuggestedRetailSellingPrice"];
     const quantity = 1;
     const newProduct = {
       name: parentProduct["SKUName"],
@@ -94,12 +99,19 @@ function App() {
   }
   function deleteProductState(product) {
     //To be fixed
+    var index = state.selectedProducts.indexOf(product);
+    if (index !== -1) {
+      const spliceAmount =
+        state.selectedProducts[index + 1] &&
+        state.selectedProducts[index + 1]["upc"] === "offer"
+          ? 2
+          : 1;
+      state.selectedProducts.splice(index, spliceAmount);
+    }
+
     setState({
       ...state,
-      selectedProducts: state.selectedProducts.slice(
-        state.selectedProducts.find(product),
-        state.selectedProducts.find(product) + 1,
-      ),
+      selectedProducts: state.selectedProducts,
     });
   }
   function openPackingModal(product) {
@@ -138,8 +150,10 @@ function App() {
         );
     }
     //
-    if (state.loyaltyId["isValid"] && state.personalOffer === {}) {
-      console.log("test");
+    if (
+      state.loyaltyId["isValid"] &&
+      JSON.stringify(state.personalOffer) === "{}"
+    ) {
       fetch("structures/pos_fetch_response.json")
         .then((response) => response.json())
         .then((jsonResponse) =>
@@ -147,30 +161,57 @@ function App() {
             ...state,
             personalOffer: state.loyaltyOffers.find(
               (offer) =>
-                offer["offerId"] ===
-                jsonResponse["details"][0]["offersAvailable"][0]["offerId"],
+                offer["offerID"] ===
+                jsonResponse["details"][0]["offersAvailable"][0]["offerID"],
             ),
           }),
         );
     }
+    state.selectedProducts.forEach((product) => checkPackingForOffer(product));
   });
 
-  // outputs a javascript object from the parsed json
-  // const nock = require("nock");
+  function checkPackingForOffer(packing) {
+    const index = state.selectedProducts.findIndex((item) => item === packing);
+    // check if offer applies
+    if (JSON.stringify(state.personalOffer) !== "{}") {
+      //are applicable products in cart
+      const brandGuidObject = state.brandGUID.find((guid) =>
+        guid["packings"].find(
+          (guidPacking) => guidPacking["upc"] === packing["upc"],
+        ),
+      );
 
-  // const scope = nock("https://api.github.com")
-  //   .get("/repos/atom/atom/license")
-  //   .reply(200, {
-  //     license: {
-  //       key: "mit",
-  //       name: "MIT License",
-  //       spdx_id: "MIT",
-  //       url: "https://api.github.com/licenses/mit",
-  //       node_id: "MDc6TGljZW5zZTEz",
-  //     },
-  //   });
+      if (!brandGuidObject) {
+        return false;
+      }
 
-  // fetch("https://api.github.com/repos/atom/atom");
+      const brandGUID = brandGuidObject["brandGUID"];
+      if (
+        state.personalOffer["brands"].find(
+          (brand) => brand["brandGUID"] === brandGUID,
+        ) &&
+        state.selectedProducts[index].quantity >=
+          state.personalOffer["minimumQuantity"] &&
+        !state.selectedProducts.find((product) => product["upc"] === "offer")
+      ) {
+        const offerProduct = {
+          name: state.personalOffer["offerDescription"],
+          upc: "offer",
+          uom: "",
+          quantity: 1,
+          unitPrice: state.personalOffer["offerValue"] * -1,
+          totalPrice: state.personalOffer["offerValue"] * -1,
+        };
+        state.selectedProducts.splice(index + 1, 0, offerProduct);
+
+        setState({
+          ...state,
+          selectedProducts: state.selectedProducts,
+        });
+      }
+      return true;
+    }
+  }
 
   return (
     <div className="App">
@@ -216,7 +257,7 @@ function App() {
             padding: "25px",
           }}
         >
-          <TotalsTable />
+          <TotalsTable selectedProducts={state.selectedProducts} />
         </Container>
         <Container
           fixed
@@ -364,8 +405,11 @@ function App() {
                     },
                   })
                 }
-              />
-              <Button />
+              />{" "}
+              <br />
+              <Button variant="contained" onClick={() => closeLoyaltyModal()}>
+                Enter
+              </Button>
             </Box>
           </Modal>
         </div>
