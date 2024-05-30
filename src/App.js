@@ -16,7 +16,6 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import PackingButton from "./components/PackingButton";
-import { TwoKOutlined } from "@mui/icons-material";
 
 //fixed loyaltyID returns fixed offer
 //logic to apply or remove offer for items in cart
